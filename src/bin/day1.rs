@@ -19,7 +19,7 @@ fn count_window_increases(input: &str) -> u32 {
     let mut num_increase = 0;
 
     const WINDOW_SIZE: usize = 3;
-    for (i, line) in lines.iter().enumerate() {
+    for (i, _line) in lines.iter().enumerate() {
         if i + 1 < WINDOW_SIZE {
             continue;
         }
@@ -38,6 +38,7 @@ fn main() {
     println!("ANSWER: {}", answer)
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
 

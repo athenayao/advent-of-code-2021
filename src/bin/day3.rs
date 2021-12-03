@@ -3,7 +3,7 @@ fn convert_to_decimal(mut vec: Vec<i32>) -> usize {
     let mut total = 0;
     for (i, &v) in vec.iter().enumerate() {
         if v == 1 {
-            total += (2 << i) / 2;
+            total += 1 << i;
         }
     }
     total
@@ -89,8 +89,6 @@ fn recurse_oxygen<'a>(by_columns: &Vec<Vec<i32>>, column: usize, numbers: Vec<Ve
         }
     }
 
-    println!("o2 {}, c1 {}", c0, c1);
-    dbg!("new_numbers {}", &new_numbers);
     recurse_oxygen(&by_columns, column + 1, new_numbers)
 }
 
@@ -127,8 +125,6 @@ fn recurse_co2<'a>(by_columns: &Vec<Vec<i32>>, column: usize, numbers: Vec<Vec<i
         }
     }
 
-    println!("c0 {}, c1 {}", c0, c1);
-    dbg!("new_numbers {}", &new_numbers);
     recurse_co2(&by_columns, column + 1, new_numbers)
 }
 
@@ -177,7 +173,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = include_str!("day3-example.txt");
-        println!("recurse co2");
         assert_eq!(part_two(input), 230);
     }
 }

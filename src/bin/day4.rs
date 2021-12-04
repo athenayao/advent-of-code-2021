@@ -4,6 +4,7 @@ use std::collections::HashMap;
 struct BingoCard {
     grid: Vec<Vec<i32>>,
     checked: HashMap<String, i32>,
+    completed: bool,
 }
 
 impl BingoCard {
@@ -11,6 +12,7 @@ impl BingoCard {
         BingoCard {
             grid: Vec::new(),
             checked: HashMap::new(),
+            completed: false,
         }
     }
 
@@ -93,7 +95,49 @@ fn part_one(input: &str) -> i32 {
     0
 }
 
-fn part_two(_input: &str) -> i32 {
+fn part_two(input: &str) -> i32 {
+    let lines: Vec<&str> = input.split("\n").collect();
+
+    let drawn_numbers: Vec<i32> = lines[0]
+        .split(",")
+        .map(|n| n.parse().expect("Expected number"))
+        .collect();
+
+    let mut bingo_cards: Vec<BingoCard> = Vec::new();
+    let mut current_card: BingoCard = BingoCard::build();
+    for &line in &lines[1..] {
+        match line {
+            "" => {
+                if current_card.grid.len() > 0 {
+                    bingo_cards.push(current_card)
+                }
+                current_card = BingoCard::build()
+            }
+            line => current_card.add_line(line),
+        }
+    }
+
+    let mut num_uncompleted = bingo_cards.len();
+    for number in drawn_numbers {
+        for bingo_card in &mut bingo_cards {
+            if bingo_card.completed {
+                continue;
+            }
+
+            for y in 0..5 {
+                for x in 0..5 {
+                    if bingo_card.mark_and_check(number, x, y) {
+                        bingo_card.completed = true;
+                        num_uncompleted -= 1;
+
+                        if num_uncompleted == 0 {
+                            return bingo_card.count_unmarked() * number;
+                        }
+                    }
+                }
+            }
+        }
+    }
     0
 }
 
@@ -116,6 +160,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = include_str!("day4-example.txt");
-        assert_eq!(part_two(input), 0);
+        assert_eq!(part_two(input), 1924);
     }
 }

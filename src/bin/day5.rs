@@ -31,24 +31,60 @@ impl Line {
         }
     }
 
-    fn list_points(&self) -> Vec<Point> {
+    fn list_points(&self, with_diagonal: bool) -> Vec<Point> {
         let mut points = Vec::new();
-        // horizontal
         if &self.start.x == &self.end.x {
+            // horizontal
             let start = min(self.start.y, self.end.y);
             let end = max(self.start.y, self.end.y);
             for y in start..=end {
                 points.push(Point { x: self.start.x, y })
             }
-        }
-        // vertical
-        if &self.start.y == &self.end.y {
+        } else if &self.start.y == &self.end.y {
+            // vertical
             let start = min(self.start.x, self.end.x);
             let end = max(self.start.x, self.end.x);
             for x in start..=end {
                 points.push(Point { x, y: self.start.y })
             }
+        } else if with_diagonal {
+            // println!("DIAGONAL {:?}", &self);
+            // diagonal
+            let x_diff: i32 = self.start.x as i32 - self.end.x as i32;
+            let y_diff: i32 = self.start.y as i32 - self.end.y as i32;
+            if x_diff.abs() == y_diff.abs() {
+                let incr_x: i32;
+                if self.start.x < self.end.x {
+                    incr_x = 1;
+                } else {
+                    incr_x = -1;
+                }
+                let incr_y: i32;
+                if self.start.y < self.end.y {
+                    incr_y = 1;
+                } else {
+                    incr_y = -1;
+                }
+
+                let mut x = self.start.x as i32;
+                let mut y = self.start.y as i32;
+                while x != self.end.x as i32 {
+                    points.push(Point {
+                        x: x as u32,
+                        y: y as u32,
+                    });
+                    x += incr_x;
+                    y += incr_y;
+                    // println!("Pushing diagonal - ({}, {})", x, y)
+                }
+                points.push(Point {
+                    x: x as u32,
+                    y: y as u32,
+                });
+                // println!("Pushing diagonal - ({}, {})", x, y)
+            }
         }
+        // diagonal
         // println!("{:?} -> [{:?}]", &self, &points);
         points
     }
@@ -82,7 +118,7 @@ fn part_one(input: &str) -> u32 {
 
     let mut grid = Grid::build();
     for vent in &vents {
-        for point in vent.list_points() {
+        for point in vent.list_points(false) {
             grid.mark(point);
         }
     }
@@ -96,7 +132,26 @@ fn part_one(input: &str) -> u32 {
 }
 
 fn part_two(input: &str) -> u32 {
-    0
+    let lines: Vec<&str> = input.split("\n").collect();
+
+    let mut vents: Vec<Line> = Vec::new();
+    for line in &lines {
+        vents.push(Line::build(line));
+    }
+
+    let mut grid = Grid::build();
+    for vent in &vents {
+        for point in vent.list_points(true) {
+            grid.mark(point);
+        }
+    }
+    let mut total = 0;
+    for (key, &points) in &grid.points {
+        if points >= 2 {
+            total += 1;
+        }
+    }
+    total
 }
 
 fn main() {
@@ -118,6 +173,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = include_str!("day5-example.txt");
-        assert_eq!(part_two(input), 0);
+        assert_eq!(part_two(input), 12);
     }
 }

@@ -1,4 +1,3 @@
-#[derive(Debug)]
 struct LanternFish {
     timer: u32,
 }
@@ -18,6 +17,12 @@ impl LanternFish {
     }
 }
 
+impl std::fmt::Display for LanternFish {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{}", self.timer)
+    }
+}
+
 fn part_one(input: &str, days: u32) -> u64 {
     let mut school = Vec::new();
     for fish in input.split(",") {
@@ -26,7 +31,7 @@ fn part_one(input: &str, days: u32) -> u64 {
         })
     }
 
-    for day in 1..=days {
+    for _ in 1..=days {
         let mut to_spawn = 0;
         for fish in &mut school {
             let should_spawn = fish.tick();
@@ -48,15 +53,13 @@ fn part_two(input: &str, days: u32) -> u64 {
         timers[i] += 1;
     }
 
-    for day in 1..=days {
+    for _ in 1..=days {
         let mut current_timers = vec![0; 9];
         for i in 0..timers.len() {
             current_timers[i] = timers[(i + 1) % timers.len()];
         }
         current_timers[6] += timers[0];
-        current_timers[8] = timers[0];
-
-        // println!("{:?} -> {:?}", timers, current_timers);
+        // current_timers[8] = timers[0]; -- occurs due to the % above
         timers = current_timers;
     }
     timers.iter().sum()

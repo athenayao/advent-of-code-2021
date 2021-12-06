@@ -17,13 +17,8 @@ impl LanternFish {
         false
     }
 }
-impl std::fmt::Display for LanternFish {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "{}", self.timer)
-    }
-}
 
-fn part_one(input: &str, days: u32) -> u32 {
+fn part_one(input: &str, days: u32) -> u64 {
     let mut school = Vec::new();
     for fish in input.split(",") {
         school.push(LanternFish {
@@ -43,17 +38,34 @@ fn part_one(input: &str, days: u32) -> u32 {
             school.push(LanternFish { timer: 8 });
         }
     }
-    school.len() as u32
+    school.len() as u64
 }
 
-fn part_two(input: &str) -> u32 {
-    0
+fn part_two(input: &str, days: u32) -> u64 {
+    let mut timers = vec![0; 9];
+    for fish in input.split(",") {
+        let i: usize = fish.parse().unwrap();
+        timers[i] += 1;
+    }
+
+    for day in 1..=days {
+        let mut current_timers = vec![0; 9];
+        for i in 0..timers.len() {
+            current_timers[i] = timers[(i + 1) % timers.len()];
+        }
+        current_timers[6] += timers[0];
+        current_timers[8] = timers[0];
+
+        // println!("{:?} -> {:?}", timers, current_timers);
+        timers = current_timers;
+    }
+    timers.iter().sum()
 }
 
 fn main() {
     let input = include_str!("day6.txt");
     println!("Part 1: {}", part_one(input, 80));
-    println!("Part 2: {}", part_two(input));
+    println!("Part 2: {}", part_two(input, 256));
 }
 
 #[cfg(test)]
@@ -70,6 +82,8 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = include_str!("day6-example.txt");
-        assert_eq!(part_two(input), 0);
+        assert_eq!(part_two(input, 18), 26);
+        assert_eq!(part_two(input, 80), 5934);
+        assert_eq!(part_two(input, 256), 26984457539);
     }
 }

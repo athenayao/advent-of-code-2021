@@ -5,7 +5,7 @@ impl LanternFish {
     fn tick(&mut self) -> bool {
         let old_timer = self.timer;
 
-        self.timer = match &self.timer {
+        self.timer = match self.timer {
             0 => 6,
             x => x - 1,
         };

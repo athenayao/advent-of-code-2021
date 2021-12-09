@@ -10,26 +10,25 @@ struct Point {
 fn get_neighbors(grid: &Vec<Vec<u32>>, x: usize, y: usize) -> Vec<Point> {
     let mut valid_neighbors = Vec::new();
 
-    // TODO: simplify this
-    let directions = vec![(-1, 0), (1, 0), (0, -1), (0, 1)];
-    for direction in directions {
-        let neighbor_x = x as i32 + direction.0;
-        let neighbor_y = y as i32 + direction.1;
+    let x: i32 = x as i32;
+    let y: i32 = y as i32;
 
-        if neighbor_y < 0 || neighbor_y >= grid.len() as i32 {
-            continue;
-        }
-        if neighbor_x < 0
-            || neighbor_x >= grid[y].len() as i32
-            || neighbor_x == x as i32 && neighbor_y == y as i32
+    let directions: Vec<(i32, i32)> = vec![(-1, 0), (1, 0), (0, -1), (0, 1)];
+    for direction in directions {
+        if (x == 0 && direction.0 == -1)
+            || (x + direction.0 >= grid[0].len() as i32)
+            || (y == 0 && direction.1 == -1)
+            || (y + direction.1 >= grid.len() as i32)
         {
             continue;
         }
+        let neighbor_x = (x + direction.0) as usize;
+        let neighbor_y = (y + direction.1) as usize;
 
-        let neighbor_value = grid[neighbor_y as usize][neighbor_x as usize];
+        let neighbor_value = grid[neighbor_y][neighbor_x];
         valid_neighbors.push(Point {
-            x: neighbor_x as usize,
-            y: neighbor_y as usize,
+            x: neighbor_x,
+            y: neighbor_y,
             value: neighbor_value,
         })
     }

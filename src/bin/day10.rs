@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 enum LineResult {
-    Valid { stack: Vec<String> },
+    Valid { incomplete: Vec<String> },
     Invalid { invalid_with: String },
 }
 
@@ -22,7 +22,7 @@ fn parse_line(line: &str) -> LineResult {
             }
         }
     }
-    LineResult::Valid { stack }
+    LineResult::Valid { incomplete: stack }
 }
 
 fn part_one(input: &str) -> u32 {
@@ -39,18 +39,29 @@ fn part_one(input: &str) -> u32 {
     total
 }
 
-fn part_two(input: &str) -> u32 {
+fn part_two(input: &str) -> u64 {
     let lines: Vec<&str> = input.split("\n").collect();
-    let scores = HashMap::from([(")", 3), ("]", 57), ("}", 1197), (">", 25137)]);
+    let scores = HashMap::from([(")", 1), ("]", 2), ("}", 3), (">", 4)]);
+    let pairs = HashMap::from([("(", ")"), ("{", "}"), ("[", "]"), ("<", ">")]);
 
-    let mut total = 0;
+    let mut calculated_results = Vec::new();
     for line in lines {
+        let mut total = 0;
         match parse_line(&line) {
-            LineResult::Valid { stack } => (),
+            LineResult::Valid { incomplete } => {
+                let mut to_match = incomplete;
+                to_match.reverse();
+                for symbol in to_match {
+                    total *= 5;
+                    total += scores[pairs[&*symbol]];
+                }
+                calculated_results.push(total);
+            }
             _ => (),
         }
     }
-    total
+    calculated_results.sort();
+    calculated_results[calculated_results.len() / 2]
 }
 
 fn main() {

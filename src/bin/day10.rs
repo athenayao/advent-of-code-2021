@@ -6,7 +6,7 @@ enum LineResult {
 
 fn parse_line(line: &str) -> LineResult {
     let pairs = HashMap::from([("}", "{"), (")", "("), ("]", "["), (">", "<")]);
-    let opening_symbols: HashSet<&str> = pairs.clone().into_values().collect();
+    let opening_symbols: HashSet<&str> = pairs.values().map(|n| *n).collect();
     let mut stack = Vec::new();
     for c in line.chars() {
         let c = c.to_string();

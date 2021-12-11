@@ -46,7 +46,6 @@ impl std::fmt::Display for Octopus {
 }
 
 fn tick(grid: &mut Vec<Vec<Octopus>>) -> u32 {
-    // phase 1: increase all levels by 1
     let grid_len = grid.len();
     let mut to_increment = Vec::new();
     let mut just_flashed = HashSet::new();
@@ -110,7 +109,26 @@ fn part_one(input: &str) -> u32 {
 }
 
 fn part_two(input: &str) -> u32 {
-    0
+    let lines: Vec<&str> = input.split("\n").collect();
+    let mut grid = Vec::new();
+    for (y, &row) in lines.iter().enumerate() {
+        grid.push(Vec::new());
+        for (x, cell) in row.chars().enumerate() {
+            grid[y].push(Octopus {
+                energy_level: cell.to_string().parse().unwrap(),
+                point: Point { x, y },
+            })
+        }
+    }
+
+    let mut i = 0;
+    loop {
+        i += 1;
+        let flashes = tick(&mut grid);
+        if flashes == 100 {
+            return i;
+        }
+    }
 }
 
 fn main() {
@@ -132,6 +150,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = include_str!("day11-example.txt");
-        assert_eq!(part_two(input), 0);
+        assert_eq!(part_two(input), 195);
     }
 }

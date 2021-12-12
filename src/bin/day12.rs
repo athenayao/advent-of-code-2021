@@ -121,8 +121,65 @@ fn part_one(input: &str) -> u32 {
     paths.len() as u32
 }
 
+const HAS_TWO_KEY: &str = "__has_two";
+
+fn find_path_two(
+    cave_name: &str,
+    map: &Map,
+    current_path: &Vec<String>,
+    count_seen_small: &HashMap<String, u32>,
+) -> Vec<Vec<String>> {
+    if cave_name == "end" {
+        return vec![current_path.clone()];
+    }
+    let mut current_path = current_path.clone();
+    current_path.push(cave_name.to_owned());
+
+    let mut count_seen_small = count_seen_small.clone();
+
+    let mut paths: Vec<Vec<String>> = Vec::new();
+    if let Some(cave) = map.caves.get(cave_name) {
+        if matches!(cave.size, CaveSize::Small) {
+            if count_seen_small.contains_key(&cave.id) {
+                count_seen_small.insert(HAS_TWO_KEY.to_owned(), 1);
+            } else {
+                count_seen_small.insert(cave.id.clone(), 1);
+            }
+        }
+        for connection in &cave.connections {
+            if connection == "start"
+                || (count_seen_small.contains_key(connection)
+                    && count_seen_small.contains_key(HAS_TWO_KEY))
+            {
+                continue;
+            }
+            // but have to return multiple
+            let found_paths = find_path_two(&connection, map, &current_path, &count_seen_small);
+            for path in &found_paths {
+                let mut new_path = path.clone();
+                new_path.push(cave.id.to_owned());
+                paths.push(new_path);
+            }
+        }
+    }
+    paths
+}
 fn part_two(input: &str) -> u32 {
-    0
+    let mut map = Map {
+        caves: HashMap::new(),
+    };
+
+    let lines: Vec<&str> = input.split("\n").collect();
+    for line in lines {
+        let caves: Vec<&str> = line.split("-").collect();
+        map.connect(&caves[0], &caves[1]);
+    }
+
+    // start at start, end at end, don't visit small caves more than once
+    // DFS
+
+    let paths = find_path_two("start", &map, &Vec::new(), &HashMap::new());
+    paths.len() as u32
 }
 
 fn main() {
@@ -144,6 +201,9 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = include_str!("day12-example.txt");
-        assert_eq!(part_two(input), 0);
+        assert_eq!(part_two(input), 36);
+
+        let input = include_str!("day12-example-large.txt");
+        assert_eq!(part_two(input), 103);
     }
 }

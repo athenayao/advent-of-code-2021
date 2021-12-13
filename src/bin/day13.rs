@@ -170,16 +170,70 @@ fn part_one(input: &str) -> u32 {
     //     }
     // }
 }
-// 0, 14 == 0, 0
 
-fn part_two(input: &str) -> u32 {
-    0
+fn part_two(input: &str) -> Grid {
+    let mut lines = input.split("\n");
+
+    let mut point_inputs: Vec<Point> = Vec::new();
+    let mut max_width: usize = 0;
+    let mut max_height: usize = 0;
+    // Coordinate loop
+    loop {
+        if let Some(line) = lines.next() {
+            if line == "" {
+                break;
+            }
+
+            let line: Vec<usize> = line
+                .split(",")
+                .map(|n| n.parse().expect("Expected an int"))
+                .collect();
+            point_inputs.push(Point {
+                x: line[0],
+                y: line[1],
+            });
+            max_width = max(max_width, line[0] + 1);
+            max_height = max(max_height, line[1] + 1);
+        }
+    }
+
+    let mut paper = Grid {
+        grid: vec![".".to_owned(); max_width * max_height + 1],
+        width: max_width,
+        height: max_height,
+    };
+
+    for point in point_inputs {
+        paper.mark(point);
+    }
+
+    // Fold loop
+    loop {
+        if let Some(line) = lines.next() {
+            let line: Vec<&str> = line[11..].split("=").collect();
+            let fold = match line[0] {
+                "x" => Fold::Left,
+                "y" => Fold::Up,
+                _ => Fold::Unknown,
+            };
+            paper.fold(line[1].parse().unwrap(), fold);
+            paper.print();
+
+            // println!("Step 2");
+            // paper.fold(5, Fold::Left);
+            // paper.print();
+        } else {
+            break;
+        }
+    }
+    paper
 }
 
 fn main() {
     let input = include_str!("day13.txt");
     println!("Part 1: {}", part_one(input));
-    println!("Part 2: {}", part_two(input));
+    println!("Part 2: ");
+    part_two(input).print();
 }
 
 #[cfg(test)]
@@ -195,6 +249,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = include_str!("day13-example.txt");
-        assert_eq!(part_two(input), 0);
+        part_two(input).print();
     }
 }
